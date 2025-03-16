@@ -1,0 +1,129 @@
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - hey
+    - hello
+    - hi
+    - hello there
+    - good morning
+    - good evening
+    - moin
+    - hey there
+    - let's go
+    - hey dude
+    - goodmorning
+    - goodevening
+    - good afternoon
+
+
+- intent: ask_health_schedule
+  examples: |
+    - How can I manage [headache](health_issue) at home?
+    - Give me a schedule to recover from [flu](health_issue).
+    - Can you give me a schedule to manage [migraine](health_issue) at home?
+    - What’s a good 7-day plan to recover from [sinus infection](health_issue)?
+    - I need a schedule to treat [acne](health_issue) naturally.
+    - How can I create a routine to deal with [insomnia](health_issue)?
+    - Give me a daily plan to manage [high blood pressure](health_issue).
+    - What’s a good schedule to recover from [food poisoning](health_issue)?
+    - Can you suggest a weekly plan to manage [eczema](health_issue)?
+    - I need a schedule to treat [sore throat](health_issue) at home.
+    - How can I manage [seasonal allergies](health_issue) with a daily routine?
+    - Give me a 7-day plan to recover from [sprained ankle](health_issue).
+    - What’s a good schedule to manage [acid reflux](health_issue)?
+    - Can you suggest a plan to treat [constipation](health_issue) naturally?
+    - I need a schedule to manage [stress](health_issue) at home.
+    - How can I create a routine to deal with [chronic fatigue](health_issue)?
+    - Give me a daily plan to recover from [common cold](health_issue).
+
+- intent: goodbye
+  examples: |
+    - cu
+    - good by
+    - cee you later
+    - good night
+    - bye
+    - goodbye
+    - have a nice day
+    - see you around
+    - bye bye
+    - see you later
+
+- intent: affirm
+  examples: |
+    - yes
+    - y
+    - indeed
+    - of course
+    - that sounds good
+    - correct
+
+- intent: deny
+  examples: |
+    - no
+    - n
+    - never
+    - I don't think so
+    - don't like that
+    - no way
+    - not really
+
+- intent: mood_great
+  examples: |
+    - perfect
+    - great
+    - amazing
+    - feeling like a king
+    - wonderful
+    - I am feeling very good
+    - I am great
+    - I am amazing
+    - I am going to save the world
+    - super stoked
+    - extremely good
+    - so so perfect
+    - so good
+    - so perfect
+
+- intent: request_more_remedies
+  examples: |
+    - more
+    - show me more
+    - give me more
+    - any other remedies?
+    - next
+- intent: mood_unhappy
+  examples: |
+    - my day was horrible
+    - I am sad
+    - I don't feel very well
+    - I am disappointed
+    - super sad
+    - I'm so sad
+    - sad
+    - very sad
+    - unhappy
+    - not good
+    - not very good
+    - extremly sad
+    - so saad
+    - so sad
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you a human?
+    - am I talking to a bot?
+    - am I talking to a human?
+
+- intent: health_query
+  examples: |
+    - What is the home remedy for headache?
+    - How can I cure cough naturally?
+    - I have a cold, what should I do?
+    - What is the best natural remedy for sore throat?
+    - Can you suggest a remedy for stomach pain?
+    - can you give more remedies?
+    - what are other solutions to it?
