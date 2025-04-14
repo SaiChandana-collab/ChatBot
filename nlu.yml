@@ -18,6 +18,19 @@ nlu:
     - good afternoon
 
 
+- intent: ask_ingredient_uses
+  examples: |
+    - How can [garlic](ingredient) help?
+    - What are the benefits of [ginger](ingredient)?
+    - Tell me about the uses of [turmeric](ingredient).
+    - How does [honey](ingredient) help with health?
+    - What is [peppermint](ingredient) good for?
+    - Can you explain the benefits of [cinnamon](ingredient)?
+    - What are the uses of [green tea](ingredient)?
+    - How is [neti pot](ingredient) beneficial?
+    - What does [chicken soup](ingredient) do for health?
+
+
 - intent: ask_health_schedule
   examples: |
     - How can I manage [headache](health_issue) at home?
