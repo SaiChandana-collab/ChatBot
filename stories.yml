@@ -34,6 +34,14 @@ stories:
     - intent: ask_health_schedule
     - action: action_generate_health_schedule
     
+
+- story: User asks about an ingredient
+  steps:
+    - intent: ask_ingredient_uses
+      entities:
+        - ingredient: "garlic"
+    - action: action_ingredient_uses
+
 - story: sad path 2
   steps:
   - intent: greet
