@@ -24,6 +24,8 @@ intents:
   - bot_challenge
   - health_query
   - request_more_remedies
+  - ask_ingredient_uses
+  - ask_health_schedule
 
 
 responses:
@@ -45,10 +47,16 @@ responses:
 
   utter_iamabot:
   - text: "I am a bot, powered by Rasa."
+  
+  utter_ask_ingredient:
+    - text: "Which ingredient are you asking about?"
 
+
+  
 actions:
   - action_provide_home_remedy
   - action_generate_health_schedule
+  - action_ingredient_uses
 
 session_config:
   session_expiration_time: 60
