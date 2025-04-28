@@ -72,16 +72,34 @@ nlu:
     - of course
     - that sounds good
     - correct
+    - yes
+    - of course
+    - definitely
+    - sure
+    - I do
+
+- intent: select_condition
+  examples: |
+    - I have [Diabetes](condition)
+    - [Stress](condition)
+    - [High BP](condition)
+
+- intent: done_selecting
+  examples: |
+    - I'm done
+    - That's all
+    - No more
 
 - intent: deny
   examples: |
     - no
-    - n
     - never
     - I don't think so
     - don't like that
     - no way
     - not really
+    - I don’t
+    - nope
 
 - intent: mood_great
   examples: |
@@ -140,3 +158,18 @@ nlu:
     - Can you suggest a remedy for stomach pain?
     - can you give more remedies?
     - what are other solutions to it?
+
+
+
+- intent: deny_helpfulness
+  examples: |
+    - No, it didn't help
+    - Not really
+    - Nope, still feeling bad
+    - I'm still not okay
+    - Nah, that didn't work
+    - I don't feel better
+    - It didn’t help much
+    - I'm still upset
+    - That wasn't helpful
+    - Nope, still feeling the same

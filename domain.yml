@@ -2,17 +2,66 @@ version: "3.1"
 
 
 slots:
+  suggest_personalization:
+    type: bool
+    influence_conversation: true
+    mappings:
+      - type: custom
+
+  phase:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: custom
+
+  current_condition:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom  # Filled via actions, not user input
+
+  current_condition_idx:
+    type: float
+    influence_conversation: false
+    mappings:
+      - type: custom
+
+  health_conditions:
+    type: list
+    influence_conversation: false
+    mappings:
+      - type: custom
+
+  is_collecting_conditions:
+    type: bool
+    influence_conversation: true
+    mappings:
+      - type: custom
+
   health_issue:
     type: text
     influence_conversation: false
     mappings:
       - type: custom
+
   remedy_index:
     type: any
     initial_value: 0
     influence_conversation: false
     mappings:
       - type: custom 
+
+  symptom:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: custom
+  
+  multi_select_done:
+    type: bool
+    influence_conversation: true
+    mappings:
+      - type: custom
       
 intents:
   - greet
@@ -26,9 +75,16 @@ intents:
   - request_more_remedies
   - ask_ingredient_uses
   - ask_health_schedule
+  - deny_helpfulness
+  - select_condition
+  - done_selecting
 
 
 responses:
+
+  utter_ask_continue:
+    - text: "Would you like a personalized fruit suggestion based on your health profile?"
+
   utter_greet:
   - text: "Hey! How are you?"
 
@@ -57,6 +113,12 @@ actions:
   - action_provide_home_remedy
   - action_generate_health_schedule
   - action_ingredient_uses
+  - action_ask_health_conditions
+  - action_collect_condition_response
+  - action_suggest_fruit_for_profile
+  - action_show_condition_buttons
+  - action_add_selected_condition
+
 
 session_config:
   session_expiration_time: 60

@@ -21,8 +21,6 @@ stories:
   - intent: mood_unhappy
   - action: utter_cheer_up
   - action: utter_did_that_help
-  - intent: affirm
-  - action: utter_happy
 
 - story: User asks for more remedies
   steps:
@@ -49,5 +47,8 @@ stories:
   - intent: mood_unhappy
   - action: utter_cheer_up
   - action: utter_did_that_help
-  - intent: deny
+  - intent: deny_helpfulness
   - action: utter_goodbye
+
+
+

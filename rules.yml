@@ -1,3 +1,4 @@
+
 version: "3.1"
 
 rules:
@@ -11,3 +12,25 @@ rules:
   steps:
   - intent: bot_challenge
   - action: utter_iamabot
+
+
+- rule: Show condition buttons
+  steps:
+    - intent: affirm
+    - action: action_show_condition_buttons
+
+- rule: Add selected condition
+  steps:
+    - intent: select_condition
+    - action: action_add_selected_condition
+    - action: action_show_condition_buttons
+
+- rule: User done selecting
+  steps:
+    - intent: done_selecting
+    - action: action_suggest_fruit_for_profile
+
+
+
+
+
