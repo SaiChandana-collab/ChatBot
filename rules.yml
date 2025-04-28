@@ -13,6 +13,11 @@ rules:
   - intent: bot_challenge
   - action: utter_iamabot
 
+- rule: User does not want personalized fruit suggestion
+  steps:
+    - intent: deny
+    - action: utter_no_problem
+
 
 - rule: Show condition buttons
   steps:

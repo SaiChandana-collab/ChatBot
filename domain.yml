@@ -98,6 +98,9 @@ responses:
   utter_happy:
   - text: "Great, carry on!"
 
+  utter_no_problem:
+    - text: "It's okay! Hope you enjoy. 😊"
+    
   utter_goodbye:
   - text: "Bye, Take care of your health"
 
