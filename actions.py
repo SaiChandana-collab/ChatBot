@@ -27,159 +27,20 @@
 #         return []
 
 
-"""from typing import Any, Text, Dict, List
-from rasa_sdk import Action, Tracker
-from rasa_sdk.executor import CollectingDispatcher
-import pandas as pd
-from rasa_sdk.events import SlotSet
-
-
-# Load the Excel file
-df = pd.read_csv("Home Remedies (1).csv")  # Make sure the path is correct
-
-# Store the user session's progress in a dictionary
-user_remedy_progress = {}
-
-class ActionProvideHomeRemedy(Action):
-    def name(self) -> Text:
-        return "action_provide_home_remedy"
-
-    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        user_id = tracker.sender_id  # Unique ID for the user
-        user_message = tracker.latest_message.get("text", "").lower()
-
-
-        health_issue = tracker.get_slot("health_issue")
-
-        # Extract the health issue from user input (if it's a new query)
-        if not health_issue:
-            health_issues = df["Health Issue"].str.lower().tolist()
-            matching_issues = [issue for issue in health_issues if issue in user_message]
-
-            if not matching_issues:
-                dispatcher.utter_message(text="Sorry, I don't have a home remedy for that.")
-                return []
-
-            health_issue = matching_issues[0]  # Store the first matched issue
-
-        # Extract the health issue from user input
-        #health_issues = df["Health Issue"].str.lower().tolist()
-        #matching_issues = [issue for issue in health_issues if issue in user_message]
-
-        #if not matching_issues:
-        #    dispatcher.utter_message(text="Sorry, I don't have a home remedy for that.")
-        #    return []
-
-        #issue = matching_issues[0]  # Take the first matched issue
-        remedies_list = df[df["Health Issue"].str.lower() == health_issue]
-        
-
-        
-        # Store progress if the user is asking for the first time
-        if user_id not in user_remedy_progress or "more" not in user_message:
-            user_remedy_progress[user_id] = 0  # Start from first remedy
-
-        start_idx = user_remedy_progress[user_id]
-        end_idx = start_idx + 2  # Show 2 remedies at a time
-
-        remedies_chunk = remedies_list.iloc[start_idx:end_idx]
-
-        if remedies_chunk.empty:
-            dispatcher.utter_message(text="There are no more remedies available.")
-            return []
-
-        for _, row in remedies_chunk.iterrows():
-            dispatcher.utter_message(
-                text=f"To treat {row['Health Issue']}, you can use {row['Name of Item']}. Remedy: {row['Home Remedy']}.\n"
-            )
-
-        # Update progress for next request
-        user_remedy_progress[user_id] = end_idx
-
-        # If there are more remedies left, ask if the user wants more
-        if end_idx < len(remedies_list):
-            dispatcher.utter_message(text="Would you like to see more remedies? Say 'more'.")
-
-        return [SlotSet("health_issue", health_issue)]"""
-
-
-"""from typing import Any, Text, Dict, List
-from rasa_sdk import Action, Tracker
-from rasa_sdk.executor import CollectingDispatcher
-from rasa_sdk.events import SlotSet
-import pandas as pd
-
-# Load the CSV file (Ensure the file path is correct)
-df = pd.read_csv("Home Remedies (1).csv")
-
-# Dictionary to track remedy progress for users
-user_remedy_progress = {}
-
-class ActionProvideHomeRemedy(Action):
-    def name(self) -> Text:
-        return "action_provide_home_remedy"
-
-    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        user_id = tracker.sender_id  # Unique identifier for user session
-        user_message = tracker.latest_message.get("text", "").lower()
-        previous_health_issue = tracker.get_slot("health_issue")  # Check existing slot value
-
-        # Check if the user is asking for "more"
-        if "more" in user_message and previous_health_issue:
-            health_issue = previous_health_issue  # Continue from the last issue
-        else:
-            # Extract health issue from the message
-            health_issues = df["Health Issue"].str.lower().unique().tolist()
-            matching_issues = [issue for issue in health_issues if issue in user_message]
-
-            if not matching_issues:
-                dispatcher.utter_message(text="Sorry, I don't have a home remedy for that.")
-                return []
-
-            health_issue = matching_issues[0]  # Select first matched issue
-            user_remedy_progress[user_id] = 0  # Reset progress for the new issue
-
-        # Filter remedies for the selected health issue
-        remedies_list = df[df["Health Issue"].str.lower() == health_issue.lower()]
-
-        if remedies_list.empty:
-            dispatcher.utter_message(text="Sorry, I don't have any home remedies for this issue.")
-            return [SlotSet("health_issue", None)]  # Clear slot if no remedies are found
-
-        # Get the next set of remedies
-        start_idx = user_remedy_progress.get(user_id, 0)
-        end_idx = start_idx + 2  # Show 2 remedies at a time
-        remedies_chunk = remedies_list.iloc[start_idx:end_idx]
-
-        if remedies_chunk.empty:
-            dispatcher.utter_message(text="There are no more remedies available.")
-            return []
-
-        # Display remedies
-        for _, row in remedies_chunk.iterrows():
-            dispatcher.utter_message(
-                text=f"To treat {row['Health Issue']}, you can use {row['Name of Item']}. Remedy: {row['Home Remedy']}.\n"
-            )
-
-        # Update progress
-        user_remedy_progress[user_id] = end_idx
-
-        # If more remedies are available, prompt user
-        if end_idx < len(remedies_list):
-            dispatcher.utter_message(text="Would you like to see more remedies? Say 'more'.")
-
-        # Update the slot with the current health issue
-        return [SlotSet("health_issue", health_issue)]"""
-
-
+     
+         
 
 from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 import pandas as pd
-from rasa_sdk.events import SlotSet
+import numpy as np
 import google.generativeai as genai
 from textblob import TextBlob
+from rasa_sdk.executor import CollectingDispatcher
+from rasa_sdk.events import SlotSet, EventType
+import joblib
+
 
 
 # Load the CSV file (Ensure the correct path)
@@ -330,6 +191,8 @@ class ActionProvideHomeRemedy(Action):
         # 🔹 If more remedies exist, prompt the user
         if end_idx < len(remedies_list):
             dispatcher.utter_message(text="Would you like to see more remedies? Say 'more'.")
+        
+        dispatcher.utter_message(text="Would you like a personalized fruit suggestion based on your health profile?")
 
         return [
             SlotSet("health_issue", health_issue),  # Store health issue
@@ -431,3 +294,148 @@ class ActionIngredientUses(Action):
 
         dispatcher.utter_message(text=response)
         return []
+
+class ActionAskHealthConditions(Action):
+    def name(self):
+        return "action_ask_health_conditions"
+
+    def run(self, dispatcher, tracker, domain):
+        df = pd.read_csv("Symptoms2L.csv")
+        condition_columns = df.drop("fruits", axis=1).columns.tolist()
+
+        idx = int(tracker.get_slot("current_condition_idx") or 0)
+
+        if idx < len(condition_columns):
+            current_condition = condition_columns[idx]
+            dispatcher.utter_message(text=f"Do you have **{current_condition}**?")
+            return [
+                SlotSet("current_condition", current_condition)
+                # Do NOT set current_condition_idx here again
+            ]
+        else:
+            # End of condition list
+            return [SlotSet("current_condition", None)]
+
+
+
+class ActionCollectConditionResponse(Action):
+    def name(self):
+        return "action_collect_condition_response"
+
+    def run(self, dispatcher, tracker, domain):
+        current_condition = tracker.get_slot("current_condition")
+        idx = int(tracker.get_slot("current_condition_idx") or 0)
+        user_intent = tracker.latest_message["intent"].get("name")
+
+        conditions = tracker.get_slot("health_conditions") or []
+
+        if user_intent == "affirm" and current_condition:
+            if current_condition not in conditions:
+                conditions.append(current_condition)
+        
+        if user_intent == "deny" and current_condition:
+            return [
+            SlotSet("health_conditions", conditions),
+            SlotSet("current_condition_idx", idx + 1),  # Move to next condition
+            SlotSet("current_condition", None)          # Clear for next round
+        ]
+            
+
+        print("Current Index:", idx)
+        print("User conditions so far:", conditions)
+
+        return [
+            SlotSet("health_conditions", conditions),
+            SlotSet("current_condition_idx", idx + 1),  # Move to next condition
+            SlotSet("current_condition", None)          # Clear for next round
+        ]
+
+
+
+class ActionShowConditionButtons(Action):
+    def name(self) -> Text:
+        return "action_show_condition_buttons"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        # Load all condition names (excluding 'fruits')
+        df = pd.read_csv("Symptoms2L.csv")
+        conditions = df.drop("fruits", axis=1).columns.tolist()
+
+        buttons = []
+        for condition in conditions:
+            buttons.append({
+                "title": condition,
+                "payload": f"/select_condition{{\"condition\": \"{condition}\"}}"
+            })
+
+        # Add a 'done' button
+        buttons.append({
+            "title": "Done selecting ✅",
+            "payload": "/done_selecting"
+        })
+
+        dispatcher.utter_message(
+            text="Please select any health conditions you have (click multiple):",
+            buttons=buttons
+        )
+        return []
+
+
+class ActionAddSelectedCondition(Action):
+    def name(self) -> Text:
+        return "action_add_selected_condition"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        selected = tracker.get_slot("condition")
+        existing_conditions = tracker.get_slot("health_conditions") or []
+
+        if selected and selected not in existing_conditions:
+            existing_conditions.append(selected)
+
+        return [SlotSet("health_conditions", existing_conditions)]
+
+
+class ActionSuggestFruit(Action):
+    def name(self) -> Text:
+        return "action_suggest_fruit_for_profile"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        # Load model and encoder
+        model = joblib.load("fruit_predictor.pkl")
+        le = joblib.load("label_encoder (2).pkl")
+        columns = pd.read_csv("Symptoms2L.csv", nrows=1).drop("fruits", axis=1).columns
+
+        # Get selected conditions
+        user_conditions = tracker.get_slot("health_conditions") or []
+        input_vector = np.zeros(len(columns))
+
+        for idx, col in enumerate(columns):
+            if col.lower() in [cond.lower() for cond in user_conditions]:
+                input_vector[idx] = 1
+
+        # Predict fruit
+        pred_encoded = model.predict([input_vector])[0]
+        fruit = le.inverse_transform([pred_encoded])[0]
+
+        # Get fruit use
+        uses_df = pd.read_csv("uses (1).xls")
+        fruit_row = uses_df[uses_df["Fruit"].str.lower() == fruit.lower()]
+        use = fruit_row.iloc[0]["Uses"] if not fruit_row.empty else "It's a healthy choice based on your profile."
+
+        dispatcher.utter_message(
+            text=f"Based on your health conditions, I recommend **{fruit}**.\n\n👉 {use}"
+        )
+
+        return []
+
+
+
