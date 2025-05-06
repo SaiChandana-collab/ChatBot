@@ -35,11 +35,17 @@ from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 import pandas as pd
 import numpy as np
+import os
 import google.generativeai as genai
 from textblob import TextBlob
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet, EventType
 import joblib
+from sentence_transformers import SentenceTransformer
+from transformers import pipeline
+from scipy.spatial.distance import cosine
+
+
 
 
 
@@ -47,16 +53,141 @@ import joblib
 df = pd.read_csv("Home Remedies (1).csv")
 
 class ActionProvideHomeRemedy(Action):
+
+    def __init__(self):
+        # Load models once during action server startup
+        # Embedding model for semantic similarity
+        self.embedder = SentenceTransformer('all-mpnet-base-v2')
+
+        # Paraphrasing models via transformers pipelines
+        self.paraphraser = pipeline("text2text-generation", model="ramsrigouthamg/t5_paraphraser")
+        self.remedy_paraphraser = pipeline("text2text-generation", model="ramsrigouthamg/t5_paraphraser")
+
+        # Load dataset from CSV
+        data_dir = 'data'
+        self.data = pd.read_csv( "Home Remedies (1).csv")
+
+        # Assuming your CSV has columns 'health_issue' and 'remedy'
+        self.health_issues = self.data['Health Issue'].tolist()
+        self.remedies = self.data['Home Remedy'].tolist()
+
+        # Load precomputed embeddings if available
+        embeddings_file = os.path.join(data_dir, "C:/Users/user/OneDrive/Documents/health_issues_embeddings.npy")
+        if os.path.exists(embeddings_file):
+            self.dataset_embeddings = np.load(embeddings_file)
+        else:
+            # If embeddings do not exist, you may want to compute them
+            self.dataset_embeddings = self.embedder.encode(self.health_issues, convert_to_numpy=True)
+            np.save(embeddings_file, self.dataset_embeddings)
+
+    def _load_lines(self, file_path: str) -> List[str]:
+        with open(file_path, 'r') as file:
+            return [line.strip() for line in file.readlines()]
+
+
+
     def name(self) -> Text:
         return "action_provide_home_remedy"
+    
+    def _paraphrase(self, text: str, num_return_sequences: int = 3) -> List[str]:
+        """Generate paraphrases for given text"""
+        # Format prompt for t5 paraphraser model if needed
+        queries = [f"paraphrase: {text} </s>"]
+        paraphrases = self.paraphraser(
+            queries,
+            max_length=256,
+            num_return_sequences=num_return_sequences,
+            do_sample=True,
+            top_k=50,
+            top_p=0.95,
+            temperature=0.7
+        )
+        print(f"these are paraphrases {paraphrases}")
+
+        paraphrased_texts = [p['generated_text'] for sublist in paraphrases for p in sublist]
+        return paraphrased_texts
+
+    def _embed_texts(self, texts: List[str]) -> np.ndarray:
+        """Embed a list of texts into numpy array embeddings"""
+        embeddings = self.embedder.encode(texts, convert_to_numpy=True)
+        return embeddings
+
+    def _find_best_match(self, user_embeddings: np.ndarray) -> int:
+        """
+        Given user embeddings (for paraphrased prompts), find index in dataset embeddings
+        with highest similarity (lowest cosine distance)
+        """
+        #best_idx = -1
+        #best_score = float('inf')  # We minimize cosine distance = distance, similarity = 1-distance
+        """ for emb in user_embeddings:
+            for idx, data_emb in enumerate(self.dataset_embeddings):
+                dist = cosine(emb, data_emb)
+                if dist < best_score:
+                    best_score = dist
+                    best_idx = idx"""
+        query_embedding = np.mean(user_embeddings, axis=0)
+        distances = [cosine(query_embedding, emb) for emb in self.dataset_embeddings]
+    
+        best_score = min(distances)
+        best_idx = np.argmin(distances)
+
+        # Optional logging for debugging
+        print(f"[DEBUG] Best match index: {best_idx}, Cosine Distance: {best_score}")
+
+        # Only accept matches with good similarity
+        if best_score <= 0.5:
+            return None  # or handle "no confident match" elsewhere
+            #best_idx = np.argmin([cosine(query_embedding, emb) for emb in self.dataset_embeddings])
+
+        return best_idx
+    
+    def _paraphrase_remedy(self, remedy_text: str) -> str:
+        """Paraphrase the remedy text"""
+        paraphrases = self.remedy_paraphraser(
+            [f"paraphrase: {remedy_text} </s>"],
+            max_length=256,
+            num_return_sequences=1,
+            do_sample=True,
+            top_k=50,
+            top_p=0.95,
+            temperature=0.7
+        )
+        return paraphrases[0]['generated_text']
+
+
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         user_message = tracker.latest_message.get("text", "").lower()
         health_issue = tracker.get_slot("health_issue")
         remedy_index = tracker.get_slot("remedy_index") or 0  # Default to 0 if None
+        
+        paraphrased_prompts = self._paraphrase(user_message, num_return_sequences=3)
+
+        # Step 2: Embed paraphrased prompts
+        user_embeddings = self._embed_texts(paraphrased_prompts)
+
+        # Step 3: Find best matching health issue index in dataset by similarity
+        best_match_idx = self._find_best_match(user_embeddings)
+
+        if best_match_idx is None or best_match_idx == -1 or best_match_idx >= len(self.remedies):
+            dispatcher.utter_message(text="Sorry, I could not find a suitable home remedy for your issue.")
+            return []
+
+        # Step 4: Retrieve remedy text from dataset
+        remedy_text = self.remedies[best_match_idx]
+
+        # Step 5: Paraphrase the remedy text for more natural response
+        paraphrased_remedy = self._paraphrase_remedy(remedy_text)
+
+        # Step 6: Return paraphrased remedy to user
+        dispatcher.utter_message(text=paraphrased_remedy)
+
+        # Optionally, you could embed paraphrased remedy for other uses here.
+
+        return []
 
         # Debug: Print slot values
-        print(f"Debug: Health Issue Slot = {health_issue}")
+    """ print(f"Debug: Health Issue Slot = {health_issue}")
         print(f"Debug: Remedy Index Slot = {remedy_index}")
 
         # 🔹 Check if the user is asking for more remedies
@@ -197,7 +328,7 @@ class ActionProvideHomeRemedy(Action):
         return [
             SlotSet("health_issue", health_issue),  # Store health issue
             SlotSet("remedy_index", new_remedy_index),  # Update remedy index
-        ]
+        ]"""
     
 
 
