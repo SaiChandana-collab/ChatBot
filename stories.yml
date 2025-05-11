@@ -50,5 +50,32 @@ stories:
   - intent: deny_helpfulness
   - action: utter_goodbye
 
+- story: user asks how the bot is
+  steps:
+    - intent: ask_bot_wellbeing
+    - action: utter_ask_bot_wellbeing
 
+- story: user asks bot purpose
+  steps:
+    - intent: ask_bot_purpose
+    - action: utter_ask_bot_purpose
 
+- story: user asks bot capabilities
+  steps:
+    - intent: ask_bot_capabilities
+    - action: utter_ask_bot_capabilities
+
+- story: user asks about data source
+  steps:
+    - intent: ask_bot_data_source
+    - action: utter_ask_bot_data_source
+
+- story: user asks about bot limitations
+  steps:
+    - intent: ask_bot_limitations
+    - action: utter_ask_bot_limitations
+
+- story: user asks hydration tips
+  steps:
+    - intent: ask_hydration
+    - action: utter_ask_hydration
