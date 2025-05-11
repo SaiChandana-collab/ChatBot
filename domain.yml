@@ -76,17 +76,22 @@ intents:
   - ask_ingredient_uses
   - ask_health_schedule
   - deny_helpfulness
-  - select_condition
-  - done_selecting
+  - ask_bot_purpose
+  - ask_bot_capabilities
+  - ask_bot_data_source
+  - ask_bot_limitations
+  - ask_hydration
+  - ask_bot_wellbeing
+
 
 
 responses:
 
-  utter_ask_continue:
-    - text: "Would you like a personalized fruit suggestion based on your health profile?"
-
   utter_greet:
-  - text: "Hey! How are you?"
+  - text: "Hello! 👋 How can I help you today with your health or wellness?"
+
+  utter_ask_bot_wellbeing:
+    - text: "I'm doing great, thank you for asking! 😊 How can I help you today?"
 
   utter_cheer_up:
   - text: "Here is something to cheer you up:"
@@ -95,6 +100,22 @@ responses:
   utter_did_that_help:
   - text: "Did that help you?"
 
+  utter_ask_bot_purpose:
+    - text: "I’m your home remedies assistant. I help suggest natural treatments, daily health routines, and nutritional guidance for common issues."
+  
+  utter_ask_bot_capabilities:
+    - text: "I can offer home remedies, 7-day healing schedules, health tips, and guide you based on symptoms or conditions."
+  
+
+  utter_ask_bot_data_source:
+    - text: "My information comes from trusted wellness sources and curated home remedy datasets. However, always consult a doctor for serious conditions."
+  
+  utter_ask_bot_limitations:
+    - text: "I'm here to assist with general health tips and home remedies, but I'm not a substitute for professional medical advice."
+  
+  utter_ask_hydration:
+    - text: "Staying hydrated helps maintain energy, skin health, and supports detoxification. Aim for 8–10 glasses of water daily unless advised otherwise."
+  
   utter_happy:
   - text: "Great, carry on!"
 
